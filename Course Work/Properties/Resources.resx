@@ -117,18 +117,19 @@
   <resheader name="writer">
     <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </resheader>
-  <data name="error_name_address_empty" xml:space="preserve">
-    <value>Name and address cannot be empty.</value>
-  </data>
   <data name="error_title" xml:space="preserve">
     <value>Error</value>
+  </data>
+  <data name="title_caution" xml:space="preserve">
+    <value>Caution</value>
   </data>
   <data name="message_vendor_remove_products" xml:space="preserve">
     <value>This vendor contains products.
 Removing this vendor will also remove all products.
 Do you want to continue?</value>
   </data>
-  <data name="title_caution" xml:space="preserve">
-    <value>Caution</value>
+  <data name="error_name_address_empty" xml:space="preserve">
+    <value>Name and address cannot be empty.</value>
   </data>
+  <assembly alias="System.Windows.Forms" name="System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089" />
 </root>

@@ -175,6 +175,8 @@
             this.Controls.Add(this.label1);
             this.Controls.Add(this.skuBox);
             this.FormBorderStyle = System.Windows.Forms.FormBorderStyle.FixedToolWindow;
+            this.MaximizeBox = false;
+            this.MinimizeBox = false;
             this.Name = "ProductAddForm";
             this.Text = "Add a product";
             ((System.ComponentModel.ISupportInitialize)(this.qtyBox)).EndInit();

@@ -10,13 +10,17 @@ namespace Inventory.Entity
     {
         private const int _ver = 1;
 
-        [Browsable(true)]
         public string VendorId { get; set; }
 
         public string Name { get; set; }
         
         public string Address { get; set; }
-        
+
+        public Vendor()
+        {
+            VendorId = Guid.NewGuid().ToString();
+        }
+
         public Vendor(string name, string address)
         {
             Name = name;

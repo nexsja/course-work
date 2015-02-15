@@ -34,7 +34,15 @@ namespace Inventory
 
         public void AddVendor(Vendor vendor)
         {
-            _vendorList.Add(vendor);
+            if (_vendorList.Exists(v => v.VendorId == vendor.VendorId))
+            {
+                int index = _vendorList.FindIndex(v => v.VendorId == vendor.VendorId);
+                _vendorList[index] = vendor;
+            }
+            else
+            {
+                _vendorList.Add(vendor);
+            }
         }
 
         public void AddProduct(Product product)

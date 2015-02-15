@@ -1,10 +1,9 @@
 ﻿using System;
 using System.Collections;
 using System.Collections.Generic;
-using System.ComponentModel;
-using System.Windows.Forms;
 using System.Drawing;
 using System.Linq;
+using System.Windows.Forms;
 using Inventory.Entity;
 using Inventory.Properties;
 
@@ -13,6 +12,14 @@ namespace Inventory
     public partial class MainForm : Form
     {
         private readonly Database _database;
+
+        private delegate Form FormWindowStateNormalizer(Database db);
+
+        // Prevent duplicating form windows
+        private VendorAddForm _vendorAddFormInstance;
+        
+        // Prevent duplicating form windows
+        private ProductAddForm _productAddFormInstance;
 
         public MainForm(Database db)
         {
@@ -30,32 +37,55 @@ namespace Inventory
                     join v in _database.VendorList on p.VendorId equals v.VendorId
                     let vendorName = v.Name
                     let total = p.Quantity*p.Price
-                    select new {p.Name, vendorName, p.Sku, p.Quantity, p.Price, total, p.Uom}
+                    select new { p.Name, vendorName, p.Sku, p.Quantity, p.Price, total, p.Uom }
                     ).ToList();
             }
         }
 
-        private void vendorToolStripMenuItem_Click(object sender, EventArgs e)
+        private void VendorAddMenuItemClick(object sender, EventArgs e)
         {
-            Form vendorAddPopup = new VendorAddForm(_database);
-            vendorAddPopup.Closed += ForceGridUpdate;
-            vendorAddPopup.Show();
+            if (_vendorAddFormInstance != null)
+            {
+                _vendorAddFormInstance.WindowState = FormWindowState.Normal;
+                _vendorAddFormInstance.Focus();
+            }
+            else
+            {
+                _vendorAddFormInstance = new VendorAddForm(_database);
+                _vendorAddFormInstance.Closed += ForceGridUpdate;
+                _vendorAddFormInstance.Closed += (o, args) => { _vendorAddFormInstance = null; };
+                _vendorAddFormInstance.Show();
+            }
         }
 
-        private void productToolStripMenuItem_Click(object sender, EventArgs e)
+        private void ProductAddMenuItemClick(object sender, EventArgs e)
         {
-            Form productAddPopup = new ProductAddForm(_database);
-            productAddPopup.Closed += ForceGridUpdate;
-            productAddPopup.Show();
+            if (_productAddFormInstance != null)
+            {
+                _productAddFormInstance.WindowState = FormWindowState.Normal;
+                _productAddFormInstance.Focus();
+            }
+            else
+            {
+                _productAddFormInstance = new ProductAddForm(_database);
+                _productAddFormInstance.Closed += ForceGridUpdate;
+                _productAddFormInstance.Closed += (o, args) => { _productAddFormInstance = null; };
+                _productAddFormInstance.Show();
+            }
+        }
+
+        void SetVendorList(IList<Vendor> list)
+        {
+            vendorListBox.DataSource = null;
+            vendorListBox.DataSource = list;
+            vendorListBox.DisplayMember = "Name";
+            vendorListBox.ValueMember = "VendorId";
         }
 
         //Actual method
         void ForceGridUpdate()
         {
-            vendorListBox.DataSource = null;
-            vendorListBox.DataSource = _database.VendorList;
-            vendorListBox.DisplayMember = "Name";
-            vendorListBox.ValueMember = "VendorId";
+            SetVendorList(_database.VendorList);
 
             dataGridProducts.DataSource = null;
             dataGridProducts.DataSource = GetProductDataSource;
@@ -67,24 +97,38 @@ namespace Inventory
             ForceGridUpdate();
         }
 
-        private void vendorListBox_MouseClick(object sender, MouseEventArgs e)
+        private void vendorListBox_MouseDown(object sender, MouseEventArgs e)
         {
-            
-            if (e.Button == MouseButtons.Right)
+            if (e.Button != MouseButtons.Right)
+                return;
+
+            int selectedIndex = vendorListBox.IndexFromPoint(new Point(e.X, e.Y));
+            vendorListBox.SelectedIndex = selectedIndex;
+
+            ContextMenu m = new ContextMenu();
+
+            MenuItem insertItem = new MenuItem("Insert");
+            insertItem.Click += VendorAddMenuItemClick;
+
+            m.MenuItems.Add(insertItem);
+
+            if (selectedIndex > -1)
             {
-                int selectedIndex = vendorListBox.IndexFromPoint(new Point(e.X, e.Y));
-                vendorListBox.SelectedIndex = selectedIndex;
+                Vendor selectedVendor = (Vendor)vendorListBox.Items[selectedIndex];
 
-                if (selectedIndex == -1)
+                MenuItem editItem = new MenuItem("Edit");
+                editItem.Click += (s, args) =>
                 {
-                    return;
-                }
+                    VendorAddForm vendorEdit = new VendorAddForm(_database) { EditVendor = selectedVendor };
+                    vendorEdit.Closed += ForceGridUpdate;
+                    vendorEdit.Show();
 
-                ContextMenu m = new ContextMenu();
-                MenuItem item = new MenuItem("Remove");
-                item.Click += (s, args) =>
+                };
+                m.MenuItems.Add(editItem);
+
+                MenuItem removeItem = new MenuItem("Remove");
+                removeItem.Click += (s, args) =>
                 {
-                    Vendor selectedVendor = (Vendor)vendorListBox.Items[selectedIndex];
                     int c = _database.ProductList.Count(p => p.VendorId == selectedVendor.VendorId);
                     if (c > 0)
                     {
@@ -104,9 +148,38 @@ namespace Inventory
 
                     _database.Save();
                     ForceGridUpdate();
-                };                
-                m.MenuItems.Add(item);
-                m.Show(vendorListBox, new Point(e.X, e.Y));
+                };
+                m.MenuItems.Add(removeItem);
+            }
+
+            
+            m.Show(vendorListBox, new Point(e.X, e.Y));
+        }
+
+        private void VendorListSelectItem(object sender, EventArgs e)
+        {
+            if (vendorListBox.SelectedIndex == -1)
+            {
+                return;
+            }
+            Vendor vendor = (Vendor) vendorListBox.SelectedItem;
+            vendorAddressBox.Text = vendor.Address;
+        }
+
+        private void vendorListFilter_TextChanged(object sender, EventArgs e)
+        {
+            string filter = vendorListFilter.Text.ToLower();
+            if (filter.Length > 0)
+            {
+                IEnumerable<Vendor> result = _database.VendorList.Where(v => v.Name.ToLower().Contains(filter));
+                var enumerable = result as IList<Vendor> ?? result.ToList();
+                if (!enumerable.Any()) return;
+
+                SetVendorList(enumerable);
+            }
+            else
+            {
+                ForceGridUpdate();
             }
         }
     }
