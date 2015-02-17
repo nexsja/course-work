@@ -8,7 +8,7 @@ namespace Inventory.Entity
     [Serializable()]
     public class Product
     {
-        private string _productId;
+        private readonly string _productId;
 
         public string ProductId
         {

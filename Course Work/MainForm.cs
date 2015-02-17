@@ -13,8 +13,11 @@ namespace Inventory
     {
         private readonly Database _database;
 
-        private delegate Form FormWindowStateNormalizer(Database db);
+        private delegate void FormOpener(object sender, EventArgs e);
 
+        private event FormOpener FormOpenedEvent;
+
+        private Hashtable _formWindowStatus = new Hashtable();
         // Prevent duplicating form windows
         private VendorAddForm _vendorAddFormInstance;
         
@@ -42,8 +45,25 @@ namespace Inventory
             }
         }
 
+        private void DelegateFormOpener(Form form)
+        {
+            throw new NotImplementedException();
+        }
+
         private void VendorAddMenuItemClick(object sender, EventArgs e)
         {
+            sender = (Form) sender;
+            Guid id = sender.GetType().GUID;
+            if (_formWindowStatus.ContainsKey(id))
+            {
+
+            }
+            else
+            {
+                Form form = new Form();
+                _formWindowStatus.Add(id, );
+            }
+
             if (_vendorAddFormInstance != null)
             {
                 _vendorAddFormInstance.WindowState = FormWindowState.Normal;
@@ -108,7 +128,9 @@ namespace Inventory
             ContextMenu m = new ContextMenu();
 
             MenuItem insertItem = new MenuItem("Insert");
-            insertItem.Click += VendorAddMenuItemClick;
+
+//            FormOpener delegateFormOpener = DelegateFormOpener;
+//            insertItem.Click += FormOpenedEvent;
 
             m.MenuItems.Add(insertItem);
 

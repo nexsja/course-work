@@ -4,12 +4,13 @@ using System.Diagnostics;
 using System.Linq;
 using System.Windows.Forms;
 using Inventory.Entity;
+using Inventory.Properties;
 
 namespace Inventory
 {
     public partial class ProductAddForm : Form
     {
-        private Database _database;
+        private readonly Database _database;
 
         public ProductAddForm(Database db)
         {
@@ -24,7 +25,7 @@ namespace Inventory
             vendorsCb.ValueMember = "VendorId";
         }
 
-        private void button1_Click(object sender, System.EventArgs e)
+        private void button1_Click(object sender, EventArgs e)
         {
             //The initial idea was to do entity mapping directly, but there's no benifit to this here
             //except arbitraty complexity, but I'll leave this here for further reference.
@@ -42,7 +43,7 @@ namespace Inventory
             Product product = new Product(sku, name, uom, quantity, vendorId, price);
             if (!product.IsValid)
             {
-                MessageBox.Show("Product is not valid", "Error!", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                MessageBox.Show(Resources.error_product_invalid, Resources.error_title, MessageBoxButtons.OK, MessageBoxIcon.Error);
                 return;
             }
 

@@ -61,11 +61,29 @@ namespace Inventory.Properties {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Edit.
+        /// </summary>
+        internal static string button_edit {
+            get {
+                return ResourceManager.GetString("button_edit", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Name and address cannot be empty..
         /// </summary>
         internal static string error_name_address_empty {
             get {
                 return ResourceManager.GetString("error_name_address_empty", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Product is not valid..
+        /// </summary>
+        internal static string error_product_invalid {
+            get {
+                return ResourceManager.GetString("error_product_invalid", resourceCulture);
             }
         }
         

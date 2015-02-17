@@ -1,15 +1,12 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.IO;
-using System.Linq;
 using System.Runtime.Serialization.Formatters.Binary;
-using System.Text;
-using System.Threading.Tasks;
 using Inventory.Entity;
 
 namespace Inventory
 {
-    [Serializable()]
+    [Serializable]
     public class Database
     {
         private const string dbFile = "data.db";
@@ -64,7 +61,6 @@ namespace Inventory
                 Database db = (Database) serializer.Deserialize(stream);
                 _vendorList = db.VendorList;
                 _productList = db.ProductList;
-                db = null;
                 stream.Close();
             }
         }

@@ -7,7 +7,7 @@ namespace Inventory
 {
     public partial class VendorAddForm : Form
     {
-        private Database _database;
+        private readonly Database _database;
 
         private Vendor _vendor;
         public Vendor EditVendor 
@@ -56,7 +56,7 @@ namespace Inventory
 
             textBox1.Text = _vendor.Name;
             richTextBox1.Text = _vendor.Address;
-            button1.Text = "Edit";
+            button1.Text = Resources.button_edit;
         }
     }
 }
