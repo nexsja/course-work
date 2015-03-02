@@ -9,11 +9,7 @@ namespace Inventory
     {
         private readonly Database _database;
 
-        private Vendor _vendor;
-        public Vendor EditVendor 
-        {
-            set { _vendor = value; }
-        }
+        public Vendor EditVendor { set; private get; }
 
         public VendorAddForm()
         {
@@ -37,7 +33,7 @@ namespace Inventory
                 return;
             }
 
-            Vendor vendor = _vendor ?? new Vendor();
+            Vendor vendor = EditVendor ?? new Vendor();
             vendor.Name = name;
             vendor.Address = address;
 
@@ -49,13 +45,13 @@ namespace Inventory
 
         private void VendorAddForm_Load(object sender, System.EventArgs e)
         {
-            if (_vendor == null)
+            if (EditVendor == null)
             {
                 return;
             }
 
-            textBox1.Text = _vendor.Name;
-            richTextBox1.Text = _vendor.Address;
+            textBox1.Text = EditVendor.Name;
+            richTextBox1.Text = EditVendor.Address;
             button1.Text = Resources.button_edit;
         }
     }

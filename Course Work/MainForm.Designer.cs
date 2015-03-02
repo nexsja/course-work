@@ -45,18 +45,18 @@
             // vendorListBox
             // 
             this.vendorListBox.FormattingEnabled = true;
-            this.vendorListBox.Location = new System.Drawing.Point(523, 52);
+            this.vendorListBox.Location = new System.Drawing.Point(491, 52);
             this.vendorListBox.Name = "vendorListBox";
-            this.vendorListBox.Size = new System.Drawing.Size(120, 160);
+            this.vendorListBox.Size = new System.Drawing.Size(115, 160);
             this.vendorListBox.TabIndex = 4;
             this.vendorListBox.SelectedIndexChanged += new System.EventHandler(this.VendorListSelectItem);
             this.vendorListBox.MouseDown += new System.Windows.Forms.MouseEventHandler(this.vendorListBox_MouseDown);
             // 
             // vendorListFilter
             // 
-            this.vendorListFilter.Location = new System.Drawing.Point(523, 26);
+            this.vendorListFilter.Location = new System.Drawing.Point(491, 26);
             this.vendorListFilter.Name = "vendorListFilter";
-            this.vendorListFilter.Size = new System.Drawing.Size(120, 20);
+            this.vendorListFilter.Size = new System.Drawing.Size(115, 20);
             this.vendorListFilter.TabIndex = 5;
             this.vendorListFilter.TextChanged += new System.EventHandler(this.vendorListFilter_TextChanged);
             // 
@@ -64,9 +64,13 @@
             // 
             this.dataGridProducts.ColumnHeadersHeightSizeMode = System.Windows.Forms.DataGridViewColumnHeadersHeightSizeMode.AutoSize;
             this.dataGridProducts.Location = new System.Drawing.Point(12, 21);
+            this.dataGridProducts.MultiSelect = false;
             this.dataGridProducts.Name = "dataGridProducts";
+            this.dataGridProducts.ReadOnly = true;
             this.dataGridProducts.Size = new System.Drawing.Size(462, 191);
             this.dataGridProducts.TabIndex = 0;
+            this.dataGridProducts.CellDoubleClick += new System.Windows.Forms.DataGridViewCellEventHandler(this.dataGridProducts_CellDoubleClick);
+            this.dataGridProducts.KeyDown += new System.Windows.Forms.KeyEventHandler(this.dataGridProducts_KeyDown);
             // 
             // mainMenu1
             // 
@@ -96,17 +100,17 @@
             // vendorAddressBox
             // 
             this.vendorAddressBox.BorderStyle = System.Windows.Forms.BorderStyle.None;
-            this.vendorAddressBox.Location = new System.Drawing.Point(649, 52);
+            this.vendorAddressBox.Location = new System.Drawing.Point(617, 52);
             this.vendorAddressBox.Name = "vendorAddressBox";
             this.vendorAddressBox.ReadOnly = true;
-            this.vendorAddressBox.Size = new System.Drawing.Size(152, 128);
+            this.vendorAddressBox.Size = new System.Drawing.Size(102, 160);
             this.vendorAddressBox.TabIndex = 6;
             this.vendorAddressBox.Text = "";
             // 
             // label1
             // 
             this.label1.AutoSize = true;
-            this.label1.Location = new System.Drawing.Point(646, 29);
+            this.label1.Location = new System.Drawing.Point(614, 29);
             this.label1.Name = "label1";
             this.label1.Size = new System.Drawing.Size(84, 13);
             this.label1.TabIndex = 7;
@@ -115,7 +119,7 @@
             // label2
             // 
             this.label2.AutoSize = true;
-            this.label2.Location = new System.Drawing.Point(523, 7);
+            this.label2.Location = new System.Drawing.Point(491, 7);
             this.label2.Name = "label2";
             this.label2.Size = new System.Drawing.Size(66, 13);
             this.label2.TabIndex = 8;
@@ -125,7 +129,7 @@
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(837, 290);
+            this.ClientSize = new System.Drawing.Size(734, 236);
             this.Controls.Add(this.dataGridProducts);
             this.Controls.Add(this.label2);
             this.Controls.Add(this.label1);

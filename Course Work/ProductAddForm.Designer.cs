@@ -179,6 +179,7 @@
             this.MinimizeBox = false;
             this.Name = "ProductAddForm";
             this.Text = "Add a product";
+            this.Load += new System.EventHandler(this.ProductAddForm_Load);
             ((System.ComponentModel.ISupportInitialize)(this.qtyBox)).EndInit();
             this.ResumeLayout(false);
             this.PerformLayout();

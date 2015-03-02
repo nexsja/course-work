@@ -1,6 +1,6 @@
 ﻿using System;
+using System.Collections;
 using System.Collections.Generic;
-using System.Diagnostics;
 using System.Linq;
 using System.Windows.Forms;
 using Inventory.Entity;
@@ -12,6 +12,8 @@ namespace Inventory
     {
         private readonly Database _database;
 
+        public Product EditProduct { set; private get; }
+
         public ProductAddForm(Database db)
         {
             _database = db;
@@ -19,6 +21,10 @@ namespace Inventory
 
             //This is cool, but unnecessary
             //Dictionary<string, string> vendors = _database.VendorList.ToDictionary(v => v.VendorId, v => v.Name);
+
+            //uomCb.DataSource = _database.ProductList.GroupBy(p => p.Uom);
+            var whatever = _database.ProductList.GroupBy(p => p.GetHashCode(), p => p.Uom);
+            
 
             vendorsCb.DataSource = _database.VendorList;
             vendorsCb.DisplayMember = "Name";
@@ -40,16 +46,40 @@ namespace Inventory
             Double.TryParse(priceBox.Text, out price);
             string vendorId = (string) vendorsCb.SelectedValue;
 
-            Product product = new Product(sku, name, uom, quantity, vendorId, price);
+            Product product = EditProduct ?? new Product();
+            product.Sku = sku;
+            product.Name = name;
+            product.Uom = uom;
+            product.Quantity = quantity;
+            product.VendorId = vendorId;
+            product.Price = price;
+
             if (!product.IsValid)
             {
                 MessageBox.Show(Resources.error_product_invalid, Resources.error_title, MessageBoxButtons.OK, MessageBoxIcon.Error);
                 return;
             }
 
-            _database.ProductList.Add(product);
+            _database.AddProduct(product);
             _database.Save();
             Close();
+        }
+
+        private void ProductAddForm_Load(object sender, EventArgs e)
+        {
+            if (EditProduct == null)
+            {
+                return;
+            }
+
+            skuBox.Text = EditProduct.Sku;
+            nameBox.Text = EditProduct.Name;
+            uomCb.Text = EditProduct.Uom;
+            qtyBox.Value = EditProduct.Quantity;
+            priceBox.Text = Convert.ToString(EditProduct.Price);
+            vendorsCb.SelectedValue = EditProduct.VendorId;
+
+            button1.Text = Resources.button_edit;
         }
     }
 }

@@ -1,8 +1,10 @@
 ﻿using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Drawing;
 using System.Linq;
+using System.Runtime.Versioning;
 using System.Windows.Forms;
 using Inventory.Entity;
 using Inventory.Properties;
@@ -12,17 +14,6 @@ namespace Inventory
     public partial class MainForm : Form
     {
         private readonly Database _database;
-
-        private delegate void FormOpener(object sender, EventArgs e);
-
-        private event FormOpener FormOpenedEvent;
-
-        private Hashtable _formWindowStatus = new Hashtable();
-        // Prevent duplicating form windows
-        private VendorAddForm _vendorAddFormInstance;
-        
-        // Prevent duplicating form windows
-        private ProductAddForm _productAddFormInstance;
 
         public MainForm(Database db)
         {
@@ -38,63 +29,41 @@ namespace Inventory
             {
                 return (from p in _database.ProductList
                     join v in _database.VendorList on p.VendorId equals v.VendorId
-                    let vendorName = v.Name
+                    let vendor = v.Name
                     let total = p.Quantity*p.Price
-                    select new { p.Name, vendorName, p.Sku, p.Quantity, p.Price, total, p.Uom }
+                    select new { p.ProductId, p.Name, vendor,  p.Sku, p.Quantity, p.Price, total, p.Uom }
                     ).ToList();
             }
         }
 
-        private void DelegateFormOpener(Form form)
-        {
-            throw new NotImplementedException();
-        }
-
         private void VendorAddMenuItemClick(object sender, EventArgs e)
         {
-            sender = (Form) sender;
-            Guid id = sender.GetType().GUID;
-            if (_formWindowStatus.ContainsKey(id))
-            {
-
-            }
-            else
-            {
-                Form form = new Form();
-                _formWindowStatus.Add(id, );
-            }
-
-            if (_vendorAddFormInstance != null)
-            {
-                _vendorAddFormInstance.WindowState = FormWindowState.Normal;
-                _vendorAddFormInstance.Focus();
-            }
-            else
-            {
-                _vendorAddFormInstance = new VendorAddForm(_database);
-                _vendorAddFormInstance.Closed += ForceGridUpdate;
-                _vendorAddFormInstance.Closed += (o, args) => { _vendorAddFormInstance = null; };
-                _vendorAddFormInstance.Show();
-            }
+            FormOpener("VendorAddForm").Show();
         }
 
         private void ProductAddMenuItemClick(object sender, EventArgs e)
         {
-            if (_productAddFormInstance != null)
-            {
-                _productAddFormInstance.WindowState = FormWindowState.Normal;
-                _productAddFormInstance.Focus();
-            }
-            else
-            {
-                _productAddFormInstance = new ProductAddForm(_database);
-                _productAddFormInstance.Closed += ForceGridUpdate;
-                _productAddFormInstance.Closed += (o, args) => { _productAddFormInstance = null; };
-                _productAddFormInstance.Show();
-            }
+            FormOpener("ProductAddForm").Show();
         }
 
-        void SetVendorList(IList<Vendor> list)
+        private Form FormOpener(string formName)
+        {
+            IList<Form> forms = Application.OpenForms.OfType<Form>().ToList();
+            Form form = forms.SingleOrDefault(f => f.Name == formName);
+
+            if (form != null)
+            {
+                form.WindowState = FormWindowState.Normal;
+                form.Focus();
+                return form;
+            }
+
+            form = (Form)Activator.CreateInstance(Type.GetType("Inventory." + formName), _database);
+            form.Closed += ForceGridUpdate;
+            return form;
+        }
+
+        private void SetVendorList(IList<Vendor> list)
         {
             vendorListBox.DataSource = null;
             vendorListBox.DataSource = list;
@@ -103,16 +72,17 @@ namespace Inventory
         }
 
         //Actual method
-        void ForceGridUpdate()
+        private void ForceGridUpdate()
         {
             SetVendorList(_database.VendorList);
 
             dataGridProducts.DataSource = null;
             dataGridProducts.DataSource = GetProductDataSource;
+            dataGridProducts.Columns[0].Visible = false;
         }
 
         //Required by EventHandler
-        void ForceGridUpdate(object sender, EventArgs e)
+        private void ForceGridUpdate(object sender, EventArgs e)
         {
             ForceGridUpdate();
         }
@@ -129,8 +99,7 @@ namespace Inventory
 
             MenuItem insertItem = new MenuItem("Insert");
 
-//            FormOpener delegateFormOpener = DelegateFormOpener;
-//            insertItem.Click += FormOpenedEvent;
+            insertItem.Click += VendorAddMenuItemClick;
 
             m.MenuItems.Add(insertItem);
 
@@ -141,9 +110,9 @@ namespace Inventory
                 MenuItem editItem = new MenuItem("Edit");
                 editItem.Click += (s, args) =>
                 {
-                    VendorAddForm vendorEdit = new VendorAddForm(_database) { EditVendor = selectedVendor };
-                    vendorEdit.Closed += ForceGridUpdate;
-                    vendorEdit.Show();
+                    VendorAddForm form = (VendorAddForm) FormOpener("VendorAddForm");
+                    form.EditVendor = selectedVendor;
+                    form.Show();
 
                 };
                 m.MenuItems.Add(editItem);
@@ -201,6 +170,31 @@ namespace Inventory
             }
             else
             {
+                ForceGridUpdate();
+            }
+        }
+
+        private void dataGridProducts_CellDoubleClick(object sender, DataGridViewCellEventArgs e)
+        {
+            string selectedProductId = (string) dataGridProducts.Rows[e.RowIndex].Cells[0].Value;
+            ProductAddForm form = (ProductAddForm) FormOpener("ProductAddForm");
+            form.EditProduct = _database.ProductList.Single(p => p.ProductId == selectedProductId);
+            form.Show();
+        }
+
+        private void dataGridProducts_KeyDown(object sender, KeyEventArgs e)
+        {
+            if (e.KeyCode != Keys.Delete)
+            {
+                return;
+            }
+
+            DialogResult btn = MessageBox.Show("Are you sure you want to delete this product?", "Confirm", MessageBoxButtons.YesNo, MessageBoxIcon.Question);
+            if (btn == DialogResult.Yes)
+            {
+                string productId = (string) dataGridProducts.CurrentRow.Cells[0].Value;
+                _database.ProductList.RemoveAll(p => p.ProductId == productId);
+                _database.Save();
                 ForceGridUpdate();
             }
         }

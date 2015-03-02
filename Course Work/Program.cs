@@ -1,6 +1,4 @@
 ﻿using System;
-using System.ComponentModel.Design;
-using System.Diagnostics;
 using System.Windows.Forms;
 
 namespace Inventory

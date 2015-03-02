@@ -31,9 +31,9 @@ namespace Inventory
 
         public void AddVendor(Vendor vendor)
         {
-            if (_vendorList.Exists(v => v.VendorId == vendor.VendorId))
+            int index = _vendorList.FindIndex(v => v.VendorId == vendor.VendorId);
+            if (index > 0)
             {
-                int index = _vendorList.FindIndex(v => v.VendorId == vendor.VendorId);
                 _vendorList[index] = vendor;
             }
             else
@@ -44,7 +44,15 @@ namespace Inventory
 
         public void AddProduct(Product product)
         {
-            _productList.Add(product);
+            int index = _productList.FindIndex(p => p.ProductId == product.ProductId);
+            if (index > 0)
+            {
+                _productList[index] = product;
+            }
+            else
+            { 
+                _productList.Add(product);
+            }
         }
 
         public void Load()
