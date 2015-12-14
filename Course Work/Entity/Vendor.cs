@@ -1,7 +1,5 @@
 ﻿using System;
-using System.ComponentModel;
 using System.Runtime.Serialization;
-using System.Windows.Forms;
 
 namespace Inventory.Entity
 {
